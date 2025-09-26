@@ -1,0 +1,266 @@
+openapi: 3.0.0
+info:
+  title: API Sistem POS Warung Makan
+  description: API untuk mengelola operasi restoran, termasuk pesanan, menu, dan data pelanggan.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Server Lokal
+tags:
+  - name: Menus
+    description: Operasi terkait daftar menu.
+  - name: Customers
+    description: Operasi terkait data pelanggan.
+  - name: Orders
+    description: Operasi terkait pesanan pelanggan.
+  - name: Tables
+    description: Operasi terkait manajemen meja.
+paths:
+  /menus:
+    get:
+      summary: Mendapatkan semua menu
+      tags:
+        - Menus
+      responses:
+        "200":
+          description: Daftar menu berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Menu"
+    post:
+      summary: Menambahkan menu baru
+      tags:
+        - Menus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuInput"
+      responses:
+        "201":
+          description: Menu berhasil ditambahkan.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Menu"
+  /menus/{menuId}:
+    getById:
+      summary: Mendapatkan Menu berdasarkan id
+      tags:
+        - Menus
+      responses:
+        "200":
+          description: menu berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Menu"
+    put:
+      summary: Memperbarui menu
+      tags:
+        - Menus
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID unik menu yang akan diperbarui.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuInput"
+      responses:
+        "200":
+          description: Menu berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Menu"
+        "404":
+          description: Menu tidak ditemukan.
+  /customers:
+    post:
+      summary: Membuat pelanggan baru
+      tags:
+        - Customers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - phone
+              properties:
+                username:
+                  type: string
+                  example: "Budi Santoso"
+                phone:
+                  type: string
+                  example: "08123456789"
+      responses:
+        "201":
+          description: Pelanggan berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+  /orders:
+    post:
+      summary: Membuat pesanan baru
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - items
+              properties:
+                customerId:
+                  type: string
+                  description: ID unik pelanggan yang membuat pesanan.
+                  example: "uuid-pelanggan-123"
+                tableId:
+                  type: string
+                  description: ID meja jika pesanan untuk makan di tempat.
+                  example: "uuid-meja-123"
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - menuId
+                      - quantity
+                    properties:
+                      menuId:
+                        type: string
+                        example: "uuid-menu-456"
+                      quantity:
+                        type: integer
+                        example: 2
+                      notes:
+                        type: string
+                        example: "Extra pedas"
+      responses:
+        "201":
+          description: Pesanan berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /tables:
+    get:
+      summary: Mendapatkan semua meja
+      tags:
+        - Tables
+      responses:
+        "200":
+          description: Daftar meja berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Table"
+components:
+  schemas:
+    Menu:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "a74c5bfe-e96f-4ede-9389-ca07c6f73e84"
+        name:
+          type: string
+          example: "Nasi Goreng"
+        description:
+          type: string
+          example: "Nasi goreng dengan telur dan ayam"
+        price:
+          type: number
+          format: float
+          example: 25000.00
+        stock:
+          type: integer
+          example: 50
+        category:
+          type: string
+          example: "Makanan Berat"
+    MenuInput:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          example: "Nasi Goreng"
+        description:
+          type: string
+          example: "Nasi goreng dengan telur dan ayam"
+        price:
+          type: number
+          format: float
+          example: 25000.00
+        stock:
+          type: integer
+          example: 50
+        category:
+          type: string
+          example: "Makanan Berat"
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "b3e0e7a2-7104-41d3-92c1-2f7a9f8f2e9d"
+        username:
+          type: string
+          example: "Budi Santoso"
+        phone:
+          type: string
+          example: "08123456789"
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "87563133-b955-4f5e-9829-fc41fad12968"
+        status:
+          type: string
+          example: "PENDING"
+        customerId:
+          type: string
+          example: "b3e0e7a2-7104-41d3-92c1-2f7a9f8f2e9d"
+        tableId:
+          type: string
+          example: "uuid-meja-123"
+    Table:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "uuid-meja-123"
+        number:
+          type: integer
+          example: 5
+        capacity:
+          type: integer
+          example: 4
+        status:
+          type: string
+          example: "available"
