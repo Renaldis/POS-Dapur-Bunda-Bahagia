@@ -9,6 +9,6 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 
 router.use(auth);
-router.get("/", authorize(["Admin"]), userController.getMyProfile);
+router.get("/me", authorize(["Admin", "Cashier"]), userController.getMyProfile);
 
 module.exports = router;

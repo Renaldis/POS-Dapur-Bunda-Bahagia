@@ -4,15 +4,13 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const cors = require("cors");
 require("dotenv").config();
-const swaggerUi = require("swagger-ui-express");
-const YAML = require("yamljs");
-const swaggerDocument = YAML.load("./swagger.yaml");
 
 const menuRoutes = require("./routes/menuRoutes");
 const userRoutes = require("./routes/userRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const tableRoutes = require("./routes/tableRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const orderItemsRoutes = require("./routes/orderItemsRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -41,7 +39,9 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerUi = require("swagger-ui-express");
+const apiDocumentation = require("../swagger.json");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(apiDocumentation));
 
 // Routing API
 // Rute untuk OrderItems dihapus karena lebih baik diurus di dalam rute Order
@@ -50,6 +50,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/customers", customerRoutes);
 app.use("/api/v1/tables", tableRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/order-items", orderItemsRoutes);
 
 // Error handling harus selalu di paling akhir
 app.use(errorHandler);
